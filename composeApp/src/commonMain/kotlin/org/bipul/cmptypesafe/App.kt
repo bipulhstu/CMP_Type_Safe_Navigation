@@ -1,44 +1,107 @@
 package org.bipul.cmptypesafe
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 
-import cmptypesafenavigatioin.composeapp.generated.resources.Res
-import cmptypesafenavigatioin.composeapp.generated.resources.compose_multiplatform
+sealed interface Destination{
+
+    @Serializable
+    data object Auth: Destination
+
+    @Serializable
+    data object Dashboard: Destination
+
+    @Serializable
+    data object Dashboard2: Destination
+}
 
 @Composable
-@Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+
+        val navHostController = rememberNavController()
+
+        NavHost(navController = navHostController, startDestination = Destination.Auth){
+
+            composable<Destination.Auth>{
+                AuthScreen(modifier = Modifier.fillMaxSize()){
+                    navHostController.navigate(Destination.Dashboard)
                 }
             }
+
+            composable<Destination.Dashboard>{
+                DashboardScreen(modifier = Modifier.fillMaxSize()){
+                    navHostController.navigate(Destination.Dashboard2)
+                }
+            }
+
+            composable<Destination.Dashboard2>{
+                Dashboard2Screen(modifier = Modifier.fillMaxSize()){
+                    navHostController.popBackStack()
+                }
+            }
+
         }
+
+    }
+}
+
+
+@Composable
+fun AuthScreen(modifier: Modifier = Modifier, onClick: () -> Unit){
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Auth Screen")
+
+        Button (onClick) {
+            Text("Go to Dashboard")
+        }
+
+    }
+}
+
+@Composable
+fun DashboardScreen(modifier: Modifier = Modifier, onClick: () -> Unit){
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Dashboard Screen")
+
+        Button (onClick) {
+            Text("Go to Dashboard2")
+        }
+
+    }
+}
+
+@Composable
+fun Dashboard2Screen(modifier: Modifier = Modifier, onClick: () -> Unit){
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Dashboard 2 Screen")
+
+        Button (onClick) {
+            Text("Pop this screen")
+        }
+
     }
 }
