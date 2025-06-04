@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 sealed interface Destination{
 
@@ -23,10 +25,11 @@ sealed interface Destination{
     data object Dashboard: Destination
 
     @Serializable
-    data object Dashboard2: Destination
+    data class Dashboard2(val id: Int): Destination
 }
 
 @Composable
+@Preview
 fun App() {
     MaterialTheme {
 
@@ -42,12 +45,13 @@ fun App() {
 
             composable<Destination.Dashboard>{
                 DashboardScreen(modifier = Modifier.fillMaxSize()){
-                    navHostController.navigate(Destination.Dashboard2)
+                    navHostController.navigate(Destination.Dashboard2(id = 12))
                 }
             }
 
             composable<Destination.Dashboard2>{
-                Dashboard2Screen(modifier = Modifier.fillMaxSize()){
+                val id = it.toRoute<Destination.Dashboard2>().id
+                Dashboard2Screen(modifier = Modifier.fillMaxSize(), id){
                     navHostController.popBackStack()
                 }
             }
@@ -91,16 +95,16 @@ fun DashboardScreen(modifier: Modifier = Modifier, onClick: () -> Unit){
 }
 
 @Composable
-fun Dashboard2Screen(modifier: Modifier = Modifier, onClick: () -> Unit){
+fun Dashboard2Screen(modifier: Modifier = Modifier, id: Int, onClick: () -> Unit){
     Column (
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Dashboard 2 Screen")
+        Text("Dashboard 2 Screen. Id: ${id}")
 
         Button (onClick) {
-            Text("Pop this screen")
+            Text("Pop this Dashboard 2 screen")
         }
 
     }
