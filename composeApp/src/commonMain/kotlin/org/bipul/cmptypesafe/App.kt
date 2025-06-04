@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 sealed interface Destination{
@@ -22,11 +23,18 @@ sealed interface Destination{
     data object Auth: Destination
 
     @Serializable
-    data object Dashboard: Destination
+    data class Dashboard(val dummy: String): Destination
 
     @Serializable
     data class Dashboard2(val id: Int): Destination
 }
+
+
+@Serializable
+data class Dummy(
+    val id: Int,
+    val name: String
+)
 
 @Composable
 @Preview
@@ -39,12 +47,15 @@ fun App() {
 
             composable<Destination.Auth>{
                 AuthScreen(modifier = Modifier.fillMaxSize()){
-                    navHostController.navigate(Destination.Dashboard)
+                    val dummyString = Json.encodeToString(Dummy(id = 1, name = "Dummy Name"))
+                    navHostController.navigate(Destination.Dashboard(dummyString))
                 }
             }
 
             composable<Destination.Dashboard>{
-                DashboardScreen(modifier = Modifier.fillMaxSize()){
+                val dummyString = it.toRoute<Destination.Dashboard>().dummy
+                val dummy = Json.decodeFromString<Dummy>(dummyString)
+                DashboardScreen(modifier = Modifier.fillMaxSize(), dummy){
                     navHostController.navigate(Destination.Dashboard2(id = 12))
                 }
             }
@@ -79,13 +90,13 @@ fun AuthScreen(modifier: Modifier = Modifier, onClick: () -> Unit){
 }
 
 @Composable
-fun DashboardScreen(modifier: Modifier = Modifier, onClick: () -> Unit){
+fun DashboardScreen(modifier: Modifier = Modifier, dummy: Dummy, onClick: () -> Unit){
     Column (
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Dashboard Screen")
+        Text("Dashboard Screen. Dummy: ${dummy.name} (Id: ${dummy.id})")
 
         Button (onClick) {
             Text("Go to Dashboard2")
